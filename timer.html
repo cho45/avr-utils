@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>AVR Pre-scaler Calculator</title>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+		<script type="text/javascript" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+		<script src="sprintf.min.js"></script>
+
+		<link rev="made" href="mailto:cho45@lowreal.net"/>
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+
+		<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<style>
+			.container {
+				width: 30em;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+				<h1>AVR Pre-scaler Calculator</h1>
+			</div>
+
+			<form role="form">
+				<div class="form-group">
+					<label for="f-cpu">F_CPU</label>
+					<div class="input-group">
+						<input type="number" class="form-control" id="f-cpu" value="1"/>
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="unit">Hz</span> <span class="caret"></span></button>
+							<ul class="dropdown-menu">
+								<li><a href="javascript:setUnit('f-cpu', 'Hz', 1)">Hz</a></li>
+								<li><a href="javascript:setUnit('f-cpu', 'KHz', 1e3)">KHz</a></li>
+								<li><a href="javascript:setUnit('f-cpu', 'MHz', 1e6)">MHz</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="want">Seek Freq.</label>
+					<div class="input-group">
+						<input type="number" class="form-control" id="want" value="1"/>
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="unit">Hz</span> <span class="caret"></span></button>
+							<ul class="dropdown-menu">
+								<li><a href="javascript:setUnit('want', 'Hz', 1)">Hz</a></li>
+								<li><a href="javascript:setUnit('want', 'KHz', 1e3)">KHz</a></li>
+								<li><a href="javascript:setUnit('want', 'MHz', 1e6)">MHz</a></li>
+								<li><a href="javascript:setUnit('want', 'sec', function (x) { return 1 / x })">sec</a></li>
+								<li><a href="javascript:setUnit('want', 'msec', function (x) { return 1 / (x * 1e-3) })">msec</a></li>
+								<li><a href="javascript:setUnit('want', 'usec', function (x) { return 1 / (x * 1e-6) })">usec</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<input type="submit" class="btn btn-primary" value="Calculate"/>
+				<hr />
+				<div class="form-group">
+					<label for="result">Result</label>
+					<textarea class="form-control input-lg" id="result" disabled rows="10"></textarea>
+				</div>
+			</form>
+
+			<div id="footer">
+				<address>2013 <a href="mailto:cho45@lowreal.net">cho45@lowreal.net</a></address>
+			</div>
+		</div>
+		<script>
+			function setUnit (name, unit, func) {
+				var $input = $(document.getElementById(name));
+				var $unit  = $input.parent().find('.unit');
+				$unit.text(unit);
+				if (typeof func === 'number') {
+					var p = func;
+					func = function (x) {
+						return x * p;
+					};
+				}
+				$input.data('unit', func);
+			}
+
+			function calculate () {
+				var $f_cpu = $('#f-cpu');
+				var $want  = $('#want');
+				f_cpu = $f_cpu.data('unit')($f_cpu.val());
+				want  = $want.data('unit')($want.val());
+				console.log([f_cpu, want]);
+
+
+				function count (f_cpu, f, tpr) {
+					return f_cpu / (f * tpr);
+				}
+
+				var tpr_list = [1, 8, 64, 256, 1024];
+
+				var result = [];
+				for (var i = 0, it; (it = tpr_list[i]); i++) {
+					var n = count(f_cpu, want, it);
+					var is_int = !(~~n - n);
+					if (is_int && n < 0x10000) {
+						if (n % 0x100 === 0) {
+							result.push(sprintf("Pre-scaler:%d, 8bit OVF:256 * %d", it, n / 0x100));
+						} else
+						if (n % 0x10000 === 0) {
+							result.push(sprintf("Pre-scaler:%d, 16bit OVF:%d", it, n));
+						} else {
+							result.push(sprintf("Pre-scaler:%d, %dbit Timer CTC:%d", it, (n < 0x100 ? 8 : 16), n));
+						}
+					} else {
+						result.push(sprintf("Pre-scaler:%d, no result for %f", it, n));
+					}
+				}
+
+				$('#result').val(result.join('\n'));
+			}
+
+			setUnit('f-cpu', 'MHz', 1e6);
+			setUnit('want', 'Hz', 1);
+
+			$('form').submit(function () {
+				calculate();
+				return false;
+			});
+
+			$('input').change(function () {
+				calculate();
+			});
+		</script>
+	</body>
+</html>
