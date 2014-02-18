@@ -223,6 +223,7 @@ ISR(TWI_vect) {
 	switch (status) {
 		case I2C_BUS_ERROR                   : // 0x00
 			i2c_state = I2C_STATE_BUS_ERROR;
+			TWCR = (TWCR & 0b00001111) | (1<<TWSTO) |  (1<<TWINT);
 			break;
 		case I2C_NO_STATE_INFORMATION        : // 0xF8
 			i2c_state = I2C_STATE_ERROR;
@@ -354,7 +355,8 @@ ISR(TWI_vect) {
 		case I2C_SLAVE_RX_DATA_NACK          : // 0x88 Previously addressed with own SLA+W; data has been received; NOT ACK has been returned
 		case I2C_SLAVE_RX_GCALL_DATA_NACK    : // 0x98 Previously addressed with general call; data has been received; NOT ACK has been returned
 			if (data_index < _i2c_slave_data_size) _i2c_slave_data[data_index++] = TWDR;
-			_i2c_receive_finish();
+			// Back to SLAVE MODE
+			_i2c_receive_continue();
 			break;
 
 		case I2C_SLAVE_RX_STOP               : // 0xA0 A STOP condition or repeated START condition has been received while still addressed as Slave
