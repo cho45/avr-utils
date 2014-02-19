@@ -6,6 +6,7 @@
 #define set_bit(v, bit)   v |=  (1 << bit)
 
 ringbuffer logger_buffer;
+uint8_t logger_buffer_data[128];
 
 ISR(USART_UDRE_vect) {
 	if (logger_buffer.size) {
@@ -58,7 +59,7 @@ inline void logger_init(unsigned long baudrate) {
 		(1<<UCSZ01)|(1<<UCSZ00) | // Character Size (with UCSRB)
 		(0<<UCPOL0)             ; // Clock Polarity
 
-	ringbuffer_init(&logger_buffer);
+	ringbuffer_init(&logger_buffer, logger_buffer_data, 128);
 
 	static FILE mystdout = FDEV_SETUP_STREAM( (int(*)(char, FILE *))logger_putchar, NULL, _FDEV_SETUP_WRITE);
 	stdin = stdout = &mystdout;
