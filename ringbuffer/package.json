@@ -1,0 +1,9 @@
+{
+  "name": "ringbuffer",
+  "version": "0.0.1",
+  "repo": "cho45/avr-utils",
+  "description": "Simpe ringbuffer implementation",
+  "keywords": ["ringbuffer", "list"],
+  "license": "MIT",
+  "src": ["ringbuffer/ringbuffer.h", "ringbuffer/ringbuffer_256.h"]
+}

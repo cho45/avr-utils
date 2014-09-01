@@ -1,0 +1,9 @@
+{
+  "name": "log",
+  "version": "0.0.1",
+  "repo": "cho45/avr-utils",
+  "description": "Simple logger library for AVR",
+  "keywords": ["avr", "log", "usart"],
+  "license": "MIT",
+  "src": ["log/log.h"]
+}

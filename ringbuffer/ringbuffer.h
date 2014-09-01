@@ -7,7 +7,7 @@ typedef struct {
 	uint8_t* data;
 } ringbuffer;
 
-int ringbuffer_get(ringbuffer* buffer) {
+uint8_t ringbuffer_get(ringbuffer* buffer) {
 	if (buffer->size == 0) return 0;
 	uint8_t ret;
 	ret = buffer->data[buffer->read_index];
