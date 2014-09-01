@@ -1,9 +1,0 @@
-{
-  "name": "i2c",
-  "version": "0.0.1",
-  "repo": "cho45/avr-utils",
-  "description": "AVR TWI(I2C) implementation",
-  "keywords": ["i2c", "twi", "avr"],
-  "license": "MIT",
-  "src": ["i2c/i2c.h"]
-}
