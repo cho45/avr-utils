@@ -16,6 +16,14 @@ uint8_t ringbuffer_get(ringbuffer* buffer) {
 	return ret;
 }
 
+
+uint8_t ringbuffer_get_nth(ringbuffer* buffer, uint8_t nth) {
+	if (buffer->size == 0) return 0;
+	uint8_t ret;
+	ret = buffer->data[(buffer->read_index + nth) % buffer->capacity];
+	return ret;
+}
+
 void ringbuffer_put(ringbuffer* buffer, uint8_t data) {
 	buffer->data[buffer->write_index] = data;
 	buffer->write_index = (buffer->write_index + 1) % buffer->capacity;
@@ -24,6 +32,19 @@ void ringbuffer_put(ringbuffer* buffer, uint8_t data) {
 	} else {
 		// overflowed
 		buffer->read_index = (buffer->read_index + 1) % buffer->capacity;
+	}
+}
+
+void ringbuffer_clear(ringbuffer* buffer) {
+	buffer->write_index = 0;
+	buffer->read_index = 0;
+	buffer->size = 0;
+}
+
+void ringbuffer_pop(ringbuffer* buffer) {
+	if (buffer->size > 0) {
+		buffer->write_index--;
+		buffer->size--;
 	}
 }
 
