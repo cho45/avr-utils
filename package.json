@@ -9,6 +9,7 @@
 		"ringbuffer/ringbuffer.h",
 		"ringbuffer/ringbuffer_256.h",
 		"i2c/i2c.h",
+		"uart/uart.h",
 		"log/log.h"
 	]
 }
